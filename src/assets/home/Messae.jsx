@@ -7,7 +7,7 @@
 
 import React, { use, useEffect, useState } from 'react';
 import FriendList from './FriendList';
-import { getDatabase, onValue, push, ref, set } from 'firebase/database';
+import { getDatabase, onValue, push, ref, remove, set } from 'firebase/database';
 import { useSelector, useDispatch } from 'react-redux';
 import { messageInfo } from '../../slices/messageSlice';
 import moment from 'moment/moment';
@@ -81,7 +81,7 @@ export default function Message() {
                     arr.push(item.val())
                 }
 
-            });
+            }); 
             setMsgList(arr)
         });
     }, [select])
@@ -90,7 +90,32 @@ export default function Message() {
         setStorMsg(item.target.value)
     }
 
+let handleBlock=(item)=>{
+if(user.uid== item.senderid){
+     set (push(ref(db,"blocklist/")),{
+ blockbyid: user.uid,
+ blockby : user.displayName,
+ blockuser: item.receivername,
+ blockuserid:item.receiverid,
+ 
 
+ }).then(() => {
+    remove(ref(db, "friends/" ))
+ })
+}else{
+      set (push(ref(db,"blocklist/")),{
+ blockbyid: user.uid,
+ blockby : user.displayName,
+ blockuser: item.sendername,
+ blockuserid:item.senderid,
+ 
+
+ }).then(() => {
+  remove(ref(db, "friends/" ))
+ })
+}
+
+}
     return (
         <div className="min-h-screen bg-gray-100 flex  justify-center p-6">
             <div className="w-full max-w-6xl  bg-white rounded-2xl shadow-lg  grid grid-cols-3" style={{ height: '640px' }}>
@@ -109,19 +134,21 @@ export default function Message() {
                     <div className="space-y-3 overflow-y-scroll h-120">
                         {
                             friendList.map((item) => (
-                                <div onClick={() => heandleUserSelector(item)} className={`cursor-pointer ${item.senderid == select.id || item.receiverid == select.id ? "bg-[#cecdcd]" : "bg-gray-100"} border border-gray-200 overflow-y-scrollflex items-center justify-between p-3 rounded-lg`}>
+                                <div  className={`cursor-pointer ${item.senderid == select.id || item.receiverid == select.id ? "bg-[#cecdcd]" : "bg-gray-100"} border border-gray-200 overflow-y-scrollflex items-center justify-between p-3 rounded-lg`}>
                                     <div className="flex items-center gap-3">
 
                                         <div className="  w-12 h-12 rounded-full bg-indigo-400 flex items-center justify-center text-white font-bold"></div>
 
                                         <div >
-                                            <div className="font-semibold ">{item.senderid === user.uid
+                                            <div onClick={() => heandleUserSelector(item)} className="font-semibold ">{item.senderid === user.uid
                                                 ? item.receivername
                                                 : item.sendername}</div>
                                             <div className="text-sm text-gray-500"></div>
                                         </div>
                                     </div>
+                                    <button onClick={()=>handleBlock(item)} className='bg-blue-600 text-white px-2 py-1  rounded-[5px] mt-0.5'>block</button>
                                     <div className="text-xs text-gray-400"> </div>
+                                     
                                 </div>
                             ))
                         }

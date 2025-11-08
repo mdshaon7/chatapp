@@ -120,7 +120,7 @@ const UserList = () => {
               </span>
             </div>
             <div className="">
-{console.log(item,requestid)}    
+  
               {
                checkconfirmedfriend.includes(currentUser.uid + item.id) ||
                 checkconfirmedfriend.includes(item.id + currentUser.uid)?
